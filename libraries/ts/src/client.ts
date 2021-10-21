@@ -39,6 +39,10 @@ export class JetClient {
     return new JetClient(program, devnet);
   }
 
+  toJSON() {
+    return undefined;
+  }
+
   /**
    * Find a PDA
    * @param seeds 

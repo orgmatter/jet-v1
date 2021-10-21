@@ -36,10 +36,10 @@ use super::Cache;
 pub struct Market {
     pub version: u32,
 
-    /// The exponent used for quote prices
+    /// The exponent used for quote prices.
     pub quote_exponent: i32,
 
-    /// The currency used for quote prices
+    /// The currency used for quote prices.
     pub quote_currency: [u8; 15],
 
     /// The bump seed value for generating the authority address.
@@ -53,7 +53,7 @@ pub struct Market {
     /// assets in the market.
     pub market_authority: Pubkey,
 
-    /// The account that has authority to make changes to the market
+    /// The account that has authority to make changes to the market.
     pub owner: Pubkey,
 
     /// The mint for the token used to quote the value for reserve assets.
@@ -62,10 +62,10 @@ pub struct Market {
     /// Storage for flags that can be set on the market.
     pub flags: u64,
 
-    /// Unused space before start of reserve list
+    /// Unused space before start of reserve list.
     _reserved: [u8; 352],
 
-    /// The storage for information on reserves in the market
+    /// The storage for information on reserves in the market.
     reserves: [u8; 12288],
 }
 

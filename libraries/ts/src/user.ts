@@ -63,7 +63,7 @@ export class JetUser implements User {
     ]);
     const user = new JetUser(client, market, address, obligationAccount);
 
-    user.refresh();
+    await user.refresh();
     return user;
   }
 
@@ -530,7 +530,7 @@ export class JetUser implements User {
 
   private async refreshReserve(reserve: JetMarketReserveInfo) {
     const accounts = await this.findReserveAccounts(reserve);
-
+    
     await this.refreshAccount(this._deposits, accounts.deposits);
     await this.refreshAccount(this._loans, accounts.loan);
     await this.refreshAccount(this._collateral, accounts.collateral);

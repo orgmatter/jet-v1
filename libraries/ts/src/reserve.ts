@@ -111,6 +111,13 @@ export class JetReserve {
   ) {
     this.conn = this.client.program.provider.connection;
   }
+  
+  public toJSON() {
+    return {
+      ...this,
+      client: undefined,
+    }
+  }
 
   async refresh(): Promise<string> {
     let tx = new Transaction().add(this.makeRefreshIx());

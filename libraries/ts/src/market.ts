@@ -36,6 +36,44 @@ export interface JetMarketData {
   reserves: JetMarketReserveInfo[];
 }
 
+export interface JetMarketInfo { 
+  /** Account version. u32 */
+  version: number,
+
+  /** Quote currency used for quote prices. 15 bytes utf-8 format. */
+  quoteCurrency: string,
+
+  /** The bump seed value for generating the authority address. */
+  authorityBumpSeed: number,
+
+  /**
+   * The address used as the seed for generating the market authority
+   * address. Typically this is the market accounts own address. 
+   */
+  authoritySeed: PublicKey,
+
+  /**
+   * The account derived by the program, which has authority over all
+   * assets in the market.
+   */
+  marketAuthority: PublicKey,
+
+  /** The account that has authority to make changes to the market. */
+  owner: PublicKey,
+
+  /** The mint for the token used to quote the value for reserve assets. */
+  quoteTokenMint: PublicKey,
+
+  /** Storage for flags that can be set on the market. */
+  flags: anchor.BN,
+
+  /** Unused space before start of reserve list */
+  _reserved: number[],
+
+  /** The storage for information on reserves in the market. */
+  reserves: JetMarketReserveInfo[]
+}
+
 export class JetMarket implements JetMarketData {
   private constructor(
     private client: JetClient,
@@ -46,6 +84,13 @@ export class JetMarket implements JetMarketData {
     public owner: PublicKey,
     public reserves: JetMarketReserveInfo[]
   ) { }
+
+  public toJSON() {
+    return {
+      ...this,
+      client: undefined,
+    }
+  }
 
   private static async fetchData(
     client: JetClient,

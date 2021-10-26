@@ -2,31 +2,28 @@ import * as anchor from "@project-serum/anchor";
 import {
   Amount,
   JetClient,
+  JetMarket,
   JetReserve,
   JetUser,
   ReserveConfig,
-} from "@jet-lab/jet-client";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import {
-  CreateMarketParams,
-  JetMarket,
   MarketFlags,
-} from "libraries/ts/src/market";
-import { TestToken, TestUtils, toBN } from "./utils";
-import { BN } from "@project-serum/anchor";
-import { NodeWallet } from "@project-serum/anchor/dist/provider";
-import {
   CreateReserveParams,
   UpdateReserveConfigParams,
-} from "libraries/ts/src/reserve";
+  CreateMarketParams,
+  Jet,
+} from "@jet-lab/jet-engine";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { TestToken, TestUtils } from "./utils";
+import { BN } from "@project-serum/anchor";
+import { Wallet } from "@project-serum/anchor";
 import * as serum from "@project-serum/serum";
 import { SerumUtils } from "./utils/serum";
 import { assert, expect, use as chaiUse } from "chai";
 import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
-import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
 import isEqual from "lodash";
+import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 
 chaiUse(chaiAsPromised.default);
 
@@ -101,15 +98,15 @@ describe("jet", async () => {
     reserve?: JetReserve;
   }
 
-  let IDL: anchor.Idl;
-  const program: anchor.Program = anchor.workspace.Jet;
+  let IDL: Jet;
+  const program: anchor.Program<Jet> = anchor.workspace.Jet;
   const provider = anchor.Provider.local();
   const wallet = provider.wallet as anchor.Wallet;
 
   const testUtils = new TestUtils(provider.connection, wallet);
   const serumUtils = new SerumUtils(testUtils, false);
 
-  let jet: anchor.Program;
+  let jet: anchor.Program<Jet>;
   let client: JetClient;
   let usdc: TokenEnv;
   let wsol: TokenEnv;
@@ -147,7 +144,7 @@ describe("jet", async () => {
       );
     }
 
-    const userProgram = new anchor.Program(
+    const userProgram = new anchor.Program<Jet>(
       IDL,
       program.programId,
       new anchor.Provider(
@@ -180,7 +177,7 @@ describe("jet", async () => {
 
   before(async () => {
     IDL = program.idl;
-    jet = new anchor.Program(IDL, program.programId, provider);
+    jet = new anchor.Program<Jet>(IDL, program.programId, provider);
     client = new JetClient(jet);
 
     usdc = await createTokenEnv(6, 1n); // FIXME Break decimal symmetry
@@ -195,7 +192,7 @@ describe("jet", async () => {
     });
 
     // marketOwner = Keypair.generate(); // FIXME ? This _should_ work
-    marketOwner = (provider.wallet as any as NodeWallet).payer;
+    marketOwner = (provider.wallet as any as Wallet).payer;
 
     reserveConfig = {
       utilizationRate1: 8500,

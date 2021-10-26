@@ -11,7 +11,7 @@ import { DataManager } from "./data";
 import { TestToken, TestUtils, toBN, toPublicKeys } from ".";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
-import { DEX_ID, DEX_ID_DEVNET}from "@jet-lab/jet-client";
+import { DEX_ID, DEX_ID_DEVNET}from "@jet-lab/jet-engine";
 
 export interface ReserveAccounts {
   accounts: {

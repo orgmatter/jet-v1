@@ -493,12 +493,12 @@ export let addTransactionLog = async (signature: string) => {
 
 // Deposit
 export const deposit = async (abbrev: string, lamports: BN)
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (!user.assets || !user.wallet || !program) {
     return [TxnResponse.Failed, null];
   }
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
+  const [res, txid] = await refreshOldReserves();
+  if (res !== TxnResponse.Success) {
     return [TxnResponse.Failed, txid]
   }
 
@@ -660,13 +660,13 @@ export const deposit = async (abbrev: string, lamports: BN)
 
 // Withdraw
 export const withdraw = async (abbrev: string, amount: Amount)
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (!user.assets || !user.wallet || !program) {
     return [TxnResponse.Failed, null];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
+  const [res, txid] = await refreshOldReserves();
+  if (res !== TxnResponse.Success) {
     return [TxnResponse.Failed, txid]
   }
 
@@ -786,8 +786,12 @@ export const withdraw = async (abbrev: string, amount: Amount)
   ];
 
   try {
-    const [ok, txids] = await sendAllTransactions(program.provider, ixs);
-    return [ok, txids[txids.length - 1]]
+    const [res, txids] = await sendAllTransactions(program.provider, ixs);
+    if (txids && txids.length !== 0) {
+      return [res, txids[txids.length - 1]];
+    } else {
+      return [TxnResponse.Failed, null];
+    }
   } catch (err) {
     console.error(`Withdraw error: ${transactionErrorToString(err)}`);
     rollbar.error(`Withdraw error: ${transactionErrorToString(err)}`);
@@ -797,13 +801,13 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
 // Borrow
 export const borrow = async (abbrev: string, amount: Amount)
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (!user.assets || !user.wallet || !program) {
     return [TxnResponse.Failed, null];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
+  const [res, txid] = await refreshOldReserves();
+  if (res !== TxnResponse.Success) {
     return [TxnResponse.Failed, txid]
   }
   
@@ -930,8 +934,12 @@ export const borrow = async (abbrev: string, amount: Amount)
 
   try {
     // Make deposit RPC call
-    const [ok, txids] = await sendAllTransactions(program.provider, ixs);
-    return [ok, txids[txids.length - 1]];
+    const [res, txids] = await sendAllTransactions(program.provider, ixs);
+    if (txids && txids.length !== 0) {
+      return [res, txids[txids.length - 1]];
+    } else {
+      return [TxnResponse.Failed, null];
+    }
   } catch (err) {
     console.error(`Borrow error: ${transactionErrorToString(err)}`);
     rollbar.error(`Borrow error: ${transactionErrorToString(err)}`);
@@ -941,13 +949,13 @@ export const borrow = async (abbrev: string, amount: Amount)
 
 // Repay
 export const repay = async (abbrev: string, amount: Amount)
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (!user.assets || !user.wallet || !program) {
     return [TxnResponse.Failed, null];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
+  const [res, txid] = await refreshOldReserves();
+  if (res !== TxnResponse.Success) {
     return [TxnResponse.Failed, txid]
   }
 
@@ -1080,12 +1088,12 @@ const buildRefreshReserveIxs = () => {
 /**Sends transactions to refresh all reserves
  * until it can be fully refreshed once more. */
 const refreshOldReserves = async ()
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (!program) {
     return [TxnResponse.Failed, null];
   }
 
-  let result: [ok: TxnResponse, txid: string | null] = [TxnResponse.Success, null];
+  let result: [res: TxnResponse, txid: string | null] = [TxnResponse.Success, null];
 
   for (const abbrev in market.reserves) {
     let reserve = market.reserves[abbrev];
@@ -1136,7 +1144,7 @@ const buildRefreshReserveIx = (abbrev: string) => {
 
 // Faucet
 export const airdrop = async (abbrev: string, lamports: BN)
-  : Promise<[ok: TxnResponse, txid: string | null]> => {
+  : Promise<[res: TxnResponse, txid: string | null]> => {
   if (program == null || user.assets == null || !user.wallet) {
     return [TxnResponse.Failed, null];
   }
@@ -1153,7 +1161,7 @@ export const airdrop = async (abbrev: string, lamports: BN)
 
   //optionally create a token account for wallet
 
-  let ok: TxnResponse = TxnResponse.Failed, txid: string | null;
+  let res: TxnResponse = TxnResponse.Failed, txid: string | null;
 
   if (!asset.walletTokenExists) {
     const createTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
@@ -1195,16 +1203,16 @@ export const airdrop = async (abbrev: string, lamports: BN)
     );
     ix.push(faucetAirdropIx);
 
-    [ok, txid] = await sendTransaction(program.provider, ix, signers);
+    [res, txid] = await sendTransaction(program.provider, ix, signers);
   } else {
     // Mint to the destination token account
     const mintToIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, reserve.tokenMintPubkey, asset.walletTokenPubkey, user.wallet.publicKey, [], new u64(lamports.toArray()));
     ix.push(mintToIx);
 
-    [ok, txid] = await sendTransaction(program.provider, ix, signers);
+    [res, txid] = await sendTransaction(program.provider, ix, signers);
   }
 
-  return [ok, txid];
+  return [res, txid];
 };
 
 const buildFaucetAirdropIx = async (

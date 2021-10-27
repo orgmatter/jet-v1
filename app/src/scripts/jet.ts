@@ -499,7 +499,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   }
   const [res, txid] = await refreshOldReserves();
   if (res !== TxnResponse.Success) {
-    return [TxnResponse.Failed, txid]
+    return [res, txid]
   }
 
   let reserve = market.reserves[abbrev];
@@ -667,7 +667,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
   const [res, txid] = await refreshOldReserves();
   if (res !== TxnResponse.Success) {
-    return [TxnResponse.Failed, txid]
+    return [res, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -787,11 +787,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
   try {
     const [res, txids] = await sendAllTransactions(program.provider, ixs);
-    if (txids && txids.length !== 0) {
-      return [res, txids[txids.length - 1]];
-    } else {
-      return [TxnResponse.Failed, null];
-    }
+    return [res, txids ? txids[txids.length - 1] : null];
   } catch (err) {
     console.error(`Withdraw error: ${transactionErrorToString(err)}`);
     rollbar.error(`Withdraw error: ${transactionErrorToString(err)}`);
@@ -808,7 +804,7 @@ export const borrow = async (abbrev: string, amount: Amount)
 
   const [res, txid] = await refreshOldReserves();
   if (res !== TxnResponse.Success) {
-    return [TxnResponse.Failed, txid]
+    return [res, txid]
   }
   
 
@@ -935,11 +931,7 @@ export const borrow = async (abbrev: string, amount: Amount)
   try {
     // Make deposit RPC call
     const [res, txids] = await sendAllTransactions(program.provider, ixs);
-    if (txids && txids.length !== 0) {
-      return [res, txids[txids.length - 1]];
-    } else {
-      return [TxnResponse.Failed, null];
-    }
+    return [res, txids ? txids[txids.length - 1] : null];
   } catch (err) {
     console.error(`Borrow error: ${transactionErrorToString(err)}`);
     rollbar.error(`Borrow error: ${transactionErrorToString(err)}`);
@@ -956,7 +948,7 @@ export const repay = async (abbrev: string, amount: Amount)
 
   const [res, txid] = await refreshOldReserves();
   if (res !== TxnResponse.Success) {
-    return [TxnResponse.Failed, txid]
+    return [res, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -1095,7 +1087,8 @@ const refreshOldReserves = async ()
     return [TxnResponse.Failed, null];
   }
 
-  let result: [res: TxnResponse, txid: string | null] = [TxnResponse.Success, null];
+  let res: TxnResponse = TxnResponse.Success
+  let txid: string | null = null
 
   for (const abbrev in market.reserves) {
     let reserve = market.reserves[abbrev];
@@ -1109,7 +1102,7 @@ const refreshOldReserves = async ()
       ].filter(ix => ix) as TransactionInstruction[];
 
       try {
-        result = await sendTransaction(program.provider, ix);
+        [res, txid] = await sendTransaction(program.provider, ix);
       } catch (err) {
         console.log(transactionErrorToString(err));
         return [TxnResponse.Failed, null];
@@ -1117,7 +1110,7 @@ const refreshOldReserves = async ()
       accruedUntil = accruedUntil.add(MAX_ACCRUAL_SECONDS);
     }
   }
-  return result;
+  return [res, txid];
 }
 
 const buildRefreshReserveIx = (abbrev: string) => {
@@ -1163,7 +1156,8 @@ export const airdrop = async (abbrev: string, lamports: BN)
 
   //optionally create a token account for wallet
 
-  let res: TxnResponse = TxnResponse.Failed, txid: string | null;
+  let res: TxnResponse = TxnResponse.Failed
+  let txid: string | null = null
 
   if (!asset.walletTokenExists) {
     const createTokenAccountIx = Token.createAssociatedTokenAccountInstruction(

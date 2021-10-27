@@ -1251,7 +1251,7 @@ export const getErrNameAndMsg = (code: number): string => {
   if (code >=100 && code < 300) {
     return `This is an Anchor program error code ${code}. Please check here: https://github.com/project-serum/anchor/blob/master/lang/src/error.rs`;
   } else if (code === 1) {
-    return `Solana Error Code ${code} Insufficient SOL or Fund`;
+    return `Solana Error Code ${code} Insufficient SOL or Funds`;
   }
 
   for (let i = 0; i < customProgramErrors.length; i++) {
@@ -1289,7 +1289,7 @@ export const notifyUserErrors = (code: number): void => {
   } else if (code === 1) {
     user.addNotification({
       success: false,
-      text: 'Insufficient SOL or Fund. Please check your wallet balance'
+      text: 'Insufficient SOL or Funds. Please check your wallet balance'
     });
   }
 

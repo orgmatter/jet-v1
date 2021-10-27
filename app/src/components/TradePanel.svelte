@@ -7,6 +7,7 @@
   import { dictionary } from '../scripts/localization'; 
   import Input from './Input.svelte';
   import Info from './Info.svelte';
+  import { TxnResponse } from "../models/JetTypes";
 
   let inputAmount: number | null = null;
   let maxInput: number = 0;
@@ -160,7 +161,7 @@
 
     let tradeAction = $USER.tradeAction;
     let tradeAmount = TokenAmount.tokens(inputAmount.toString(), $MARKET.currentReserve.decimals);
-    let ok, txid;
+    let res, txid;
     sendingTrade = true;
     // Depositing
     if (tradeAction === 'deposit') {
@@ -171,7 +172,7 @@
       // Otherwise, send deposit
       } else {
         const depositAmount = tradeAmount.amount;
-        [ok, txid] = await deposit($MARKET.currentReserve.abbrev, depositAmount);
+        [res, txid] = await deposit($MARKET.currentReserve.abbrev, depositAmount);
       }
     // Withdrawing
     } else if (tradeAction === 'withdraw') {
@@ -190,7 +191,7 @@
         const withdrawAmount = tradeAmount.uiAmountFloat === $USER.collateralBalances[$MARKET.currentReserve.abbrev]
           ? Amount.depositNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].collateralNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await withdraw($MARKET.currentReserve.abbrev, withdrawAmount);
+        [res, txid] = await withdraw($MARKET.currentReserve.abbrev, withdrawAmount);
       }
     // Borrowing
     } else if (tradeAction === 'borrow') {
@@ -203,7 +204,7 @@
       // Otherwise, send borrow
       } else {
         const borrowAmount = Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await borrow($MARKET.currentReserve.abbrev, borrowAmount);
+        [res, txid] = await borrow($MARKET.currentReserve.abbrev, borrowAmount);
       }
     // Repaying
     } else if (tradeAction === 'repay') {
@@ -216,12 +217,12 @@
         const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
           ? Amount.loanNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].loanNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await repay($MARKET.currentReserve.abbrev, repayAmount);
+        [res, txid] = await repay($MARKET.currentReserve.abbrev, repayAmount);
       }
     }
     
     // Notify user of successful/unsuccessful trade
-    if (ok && txid) {
+    if (res === TxnResponse.Success && txid) {
       $USER.addNotification({
         success: true,
         text: dictionary[$USER.language].cockpit.txSuccess
@@ -230,9 +231,15 @@
       });
       addTransactionLog(txid);
       adjustInterface();
-    } else if (!ok && !txid) {
+    } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
+        text: dictionary[$USER.language].cockpit.txFailed
+      });
+    } else if (res === TxnResponse.Cancelled) {
+      $USER.addNotification({
+        success: false,
+        //can add a cancelled msg here
         text: dictionary[$USER.language].cockpit.txFailed
       });
     }

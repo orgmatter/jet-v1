@@ -307,6 +307,12 @@ export const sendTransaction = async (
     try {
       transaction = await provider.wallet.signTransaction(transaction);
     } catch (err) {
+      if (JSON.stringify(err, Object.getOwnPropertyNames(err)).indexOf('unknown signer') !== -1) {
+        user.addNotification({
+          success: false,
+          text: 'Unknown Signer. Please check your wallet address.'
+        });
+      }
       console.log('Signing Transactions Failed', err, [TxnResponse.Failed, null]);
       // wallet refused to sign
       return [TxnResponse.Cancelled, null];

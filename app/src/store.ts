@@ -64,14 +64,13 @@ export const USER = writable<User>({
   addNotification: (n: Notification) => {
     const notifs = user.notifications ?? [];
     notifs.push(n);
-    const index = notifs.indexOf(n);
     USER.update(user => {
       user.notifications = notifs;
       return user;
     });
     setTimeout(() => {
-      if (user.notifications[index] && user.notifications[index].text === n.text) {
-        user.clearNotification(index);
+      if (user.notifications.length !== 0) {
+        user.clearNotification(0);
       }
     }, 5000);
   },

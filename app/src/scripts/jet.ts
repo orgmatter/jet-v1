@@ -652,6 +652,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   try {
     return await sendTransaction(program.provider, ix, signers);
   } catch (err) {
+    notifyUserErrors(Number(getCustomProgramErrorCode(JSON.stringify(err))[1]));
     console.error(`Deposit error: ${transactionErrorToString(err)}`);
     rollbar.error(`Deposit error: ${transactionErrorToString(err)}`);
     return [TxnResponse.Failed, null];
@@ -793,6 +794,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
       return [TxnResponse.Failed, null];
     }
   } catch (err) {
+    notifyUserErrors(Number(getCustomProgramErrorCode(JSON.stringify(err))[1]));
     console.error(`Withdraw error: ${transactionErrorToString(err)}`);
     rollbar.error(`Withdraw error: ${transactionErrorToString(err)}`);
     return [TxnResponse.Failed, null];
@@ -941,6 +943,7 @@ export const borrow = async (abbrev: string, amount: Amount)
       return [TxnResponse.Failed, null];
     }
   } catch (err) {
+    notifyUserErrors(Number(getCustomProgramErrorCode(JSON.stringify(err))[1]));
     console.error(`Borrow error: ${transactionErrorToString(err)}`);
     rollbar.error(`Borrow error: ${transactionErrorToString(err)}`);
     return [TxnResponse.Failed, null];
@@ -1044,6 +1047,7 @@ export const repay = async (abbrev: string, amount: Amount)
   try {
     return await sendTransaction(program.provider, ix, signers);
   } catch (err) {
+    notifyUserErrors(Number(getCustomProgramErrorCode(JSON.stringify(err))[1]));
     console.error(`Repay error: ${transactionErrorToString(err)}`);
     rollbar.error(`Repay error: ${transactionErrorToString(err)}`);
     return [TxnResponse.Failed, null];
@@ -1243,20 +1247,20 @@ const buildFaucetAirdropIx = async (
 };
 
 //Take error code and and return error explanation
-export const getErrNameAndMsg = (errCode: number): string => {
-  const code = Number(errCode);
-
+export const getErrNameAndMsg = (code: number): string => {
   if (code >=100 && code < 300) {
     return `This is an Anchor program error code ${code}. Please check here: https://github.com/project-serum/anchor/blob/master/lang/src/error.rs`;
+  } else if (code === 1) {
+    return `Solana Error Code ${code} Insufficient SOL or Fund`;
   }
 
   for (let i = 0; i < customProgramErrors.length; i++) {
     const err = customProgramErrors[i];
     if (err.code === code) {
-      return `\n\nCustom Program Error Code: ${errCode} \n- ${err.name} \n- ${err.msg}`;
+      return `\n\nCustom Program Error Code: ${code} \n- ${err.name} \n- ${err.msg}`;
     }
   } 
-  return `No matching error code description or translation for ${errCode}`;
+  return `No matching error code description or translation for ${code}`;
 };
 
 //get the custom program error code if there's any in the error message and return parsed error code hex to number string
@@ -1268,9 +1272,34 @@ export const getErrNameAndMsg = (errCode: number): string => {
    */
 export const getCustomProgramErrorCode = (errMessage: string): [boolean, string] => {
   const index = errMessage.indexOf('custom program error:');
-  if(index == -1) {
+  if (index == -1) {
     return [false, 'May not be a custom program error']
   } else {
+    //parse hex to int
     return [true, `${parseInt(errMessage.substring(index + 22,  index + 28).replace(' ', ''), 16)}`];
+  }
+};
+
+export const notifyUserErrors = (code: number): void => {
+  if (code >=100 && code < 300) {
+    user.addNotification({
+      success: false,
+      text: `This is an Anchor program error code ${code}. Please try again or contact support on Discord`
+    });
+  } else if (code === 1) {
+    user.addNotification({
+      success: false,
+      text: 'Insufficient SOL or Fund. Please check your wallet balance'
+    });
+  }
+
+  for (let i = 0; i < customProgramErrors.length; i++) {
+    const err = customProgramErrors[i];
+    if (err.code === code) {
+      user.addNotification({
+        success: false,
+        text: `${err.msg} Please try again or contact support on Discord`
+      });
+    }
   }
 };

@@ -8,8 +8,7 @@ import {
 } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
 import { Token, TOKEN_PROGRAM_ID, AccountLayout as TokenAccountLayout } from "@solana/spl-token";
-import { TestUtils, toPublicKeys } from ".";
-import { TestToken } from "app/src/jet-test";
+import { TestToken, TestUtils, toPublicKeys } from ".";
 
 export const DEX_ID = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
 

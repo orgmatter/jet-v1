@@ -14,21 +14,21 @@ import { Price as PythPrice, Product as PythProduct } from "./utils/pyth";
 
 import {
   Amount,
+  Jet,
   JetClient,
   JetMarket,
   JetReserve,
   JetUser,
   ReserveConfig,
-} from "@jet-lab/jet-client";
+} from "@jet-lab/jet-engine";
 import BN from "bn.js";
 import { u64 } from "@solana/spl-token";
-import * as util from "util";
 
 const TEST_CURRENCY = "LTD";
 
 describe("jet-serum", () => {
-  let IDL: anchor.Idl;
-  const program: anchor.Program = anchor.workspace.Jet;
+  let IDL: Jet;
+  const program: anchor.Program<Jet> = anchor.workspace.Jet;
   const provider = anchor.Provider.local();
   const wallet = provider.wallet as anchor.Wallet;
 
@@ -36,7 +36,7 @@ describe("jet-serum", () => {
   const serum = new SerumUtils(utils, false);
   const jetUtils = new JetUtils(provider.connection, wallet, program, false);
 
-  let jet: anchor.Program;
+  let jet: anchor.Program<Jet>;
   let client: JetClient;
   let usdcToken: TestToken;
 
@@ -185,7 +185,7 @@ describe("jet-serum", () => {
       ),
     ]);
 
-    const userProgram = new anchor.Program(
+    const userProgram = new anchor.Program<Jet>(
       IDL,
       program.programId,
       new anchor.Provider(
@@ -209,8 +209,8 @@ describe("jet-serum", () => {
 
   before(async () => {
     IDL = program.idl;
-    IDL.instructions.push(LiquidateDexInstruction);
-    jet = new anchor.Program(IDL, program.programId, provider);
+    (IDL.instructions as any).push(LiquidateDexInstruction);
+    jet = new anchor.Program<Jet>(IDL, program.programId, provider);
     client = new JetClient(jet);
 
     console.log(client.program.account.reserve.programId.toString());
@@ -244,6 +244,8 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        reserved0: 0,
+        reserved1: []
       },
     });
 
@@ -268,6 +270,8 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        reserved0: 0,
+        reserved1: []
       },
     });
 
@@ -292,6 +296,8 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        reserved0: 0,
+        reserved1: []
       },
     });
 
@@ -316,6 +322,8 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        reserved0: 0,
+        reserved1: []
       },
     });
 
@@ -457,6 +465,8 @@ describe("jet-serum", () => {
             loanOriginationFee: 10,
             liquidationSlippage: 300,
             liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+            reserved0: 0,
+            reserved1: []
           },
         });
       })
@@ -516,7 +526,6 @@ describe("jet-serum", () => {
     await Promise.all(assets.map((asset) => asset.reserve.refresh()));
     await Promise.all(
       [
-        assets.map((asset) => asset.reserve.refresh()),
         user.client.borrow(
           usdc.reserve,
           lenderTokenAccount,
@@ -524,6 +533,7 @@ describe("jet-serum", () => {
         ),
       ].flat()
     );
+    await Promise.all(assets.map((asset) => asset.reserve.refresh()));
 
     await Promise.all(
       assets.map((asset) =>
@@ -541,8 +551,8 @@ describe("jet-serum", () => {
       [
         user.client.liquidateDex(usdc.reserve, assets[0].reserve),
         user.client.liquidateDex(usdc.reserve, assets[1].reserve),
-        assets.map((asset) => asset.reserve.refresh()),
       ].flat()
     );
+    await Promise.all(assets.map((asset) => asset.reserve.refresh()));
   });
 });

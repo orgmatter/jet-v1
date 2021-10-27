@@ -5,14 +5,11 @@
  */
 
 import { Wallet } from "@project-serum/anchor";
-import * as web3 from "@solana/web3.js";
 import * as pyth from "@pythnetwork/client";
 import {
     Connection,
     Keypair,
     PublicKey,
-    SystemProgram,
-    Transaction,
 } from "@solana/web3.js";
 
 import { DataManager } from "./data";

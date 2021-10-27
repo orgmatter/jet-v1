@@ -14,7 +14,7 @@ import {
 } from "libraries/ts/src/market";
 import { TestToken, TestUtils, toBN } from "./utils";
 import { BN } from "@project-serum/anchor";
-import { NodeWallet } from "@project-serum/anchor/dist/provider";
+import { Wallet } from "@project-serum/anchor";
 import {
   CreateReserveParams,
   UpdateReserveConfigParams,
@@ -26,7 +26,7 @@ import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
 import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
-import isEqual from "lodash";
+import { isEqualWith } from "lodash";
 
 chaiUse(chaiAsPromised.default);
 
@@ -195,7 +195,7 @@ describe("jet", async () => {
     });
 
     // marketOwner = Keypair.generate(); // FIXME ? This _should_ work
-    marketOwner = (provider.wallet as any as NodeWallet).payer;
+    marketOwner = (provider.wallet as any as Wallet).payer;
 
     reserveConfig = {
       utilizationRate1: 8500,
@@ -807,7 +807,7 @@ describe("jet", async () => {
     const fetchedConfig = await fetchConfig();
 
     assert(
-      isEqual(fetchedConfig, newConfig),
+      isEqualWith(fetchedConfig, newConfig),
       "reserve config failed to update"
     );
   });
@@ -845,7 +845,7 @@ describe("jet", async () => {
     const expectedErr = { InstructionError: [ 0, { Custom: 141 } ] }
     
     assert(
-      isEqual(result.value.err, expectedErr),
+      isEqualWith(result.value.err, expectedErr),
       "expected instruction to fail"
     );
   });

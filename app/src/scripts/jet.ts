@@ -1080,7 +1080,9 @@ const buildRefreshReserveIxs = () => {
 
   for (const assetAbbrev in user.assets.tokens) {
     const refreshReserveIx = buildRefreshReserveIx(assetAbbrev);
-    ix.push(refreshReserveIx);
+    if(refreshReserveIx) {
+      ix.push(refreshReserveIx);
+    }
   }
   return ix;
 }

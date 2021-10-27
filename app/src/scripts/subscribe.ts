@@ -121,7 +121,6 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
       }
     });
     promises.push(promise);
-
     // Reserve Token Mint
     promise = getMintInfoAndSubscribe(connection, reserveMeta.accounts.tokenMint, amount => {
       if (amount != null) {
@@ -154,11 +153,11 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
   return await Promise.all(promises);
 };
 
-export const subscribeToAssets = async (connection: Connection, coder: anchor.Coder, wallet: anchor.web3.PublicKey) => {
+export const subscribeToAssets = async (connection: Connection, coder: anchor.Coder, wallet: anchor.web3.PublicKey): Promise<number[]> => {
   let promise: Promise<number>;
   let promises: Promise<number>[] = [];
   if (!user.assets) {
-    return;
+    return [];
   }
 
   // Obligation
@@ -272,6 +271,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
   }
 
   return await Promise.all(promises);
+};
+
+export const unsubscribeToAssets = (connection: Connection, ids: number[]) => {
+  
 };
 
 // Derive market reserve and user asset values, update global objects

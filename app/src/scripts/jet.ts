@@ -221,10 +221,11 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     // Get all asset pubkeys owned by wallet pubkey
     await getAssetPubkeys();
     // Subscribe to all asset accounts for those pubkeys
-    await subscribeToAssets(connection, coder, wallet.publicKey);
+    let subscriptionIds = await subscribeToAssets(connection, coder, wallet.publicKey); 
     // Init wallet for UI display
     USER.update(user => {
       user.walletInit = true;
+      user.walletSubscriptionIds = subscriptionIds;
       return user;
     })
   });
@@ -654,7 +655,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   } catch (err) {
     console.error(`Deposit error: ${transactionErrorToString(err)}`);
     rollbar.error(`Deposit error: ${transactionErrorToString(err)}`);
-    return [TxnResponse.Failed, null];
+    return [err, [TxnResponse.Failed, null]];
   }
 };
 

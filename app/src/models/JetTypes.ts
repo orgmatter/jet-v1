@@ -247,6 +247,8 @@ export interface User {
   // Assets and position
   assets: AssetStore | null,
   walletBalances: Record<string, number>,
+  walletSubscriptionIds: number[],
+  //add wallet subscriptions type
   collateralBalances: Record<string, number>,
   loanBalances: Record<string, number>,
   position: Obligation,

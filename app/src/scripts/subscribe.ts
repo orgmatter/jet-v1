@@ -1,5 +1,4 @@
 // Subscribe to solana accounts
-// Todo: keep subscription IDs and unsubscribe at end of lifetime
 import type { Connection } from "@solana/web3.js";
 import { NATIVE_MINT } from "@solana/spl-token";
 import type * as anchor from "@project-serum/anchor";
@@ -269,12 +268,20 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
     });
     promises.push(promise);
   }
-
   return await Promise.all(promises);
 };
 
-export const unsubscribeToAssets = (connection: Connection, ids: number[]) => {
-  
+export const unsubscribeToAssets = (connection: Connection, ids: number[]): void => {
+  let i = ids.length - 1;
+  while (i >= 0) {
+    connection.removeAccountChangeListener(ids[i]);
+    ids.pop();
+    i--;
+  }
+  USER.update((user) => {
+    user.walletSubscriptionIds = [...ids];
+    return user;
+  });
 };
 
 // Derive market reserve and user asset values, update global objects

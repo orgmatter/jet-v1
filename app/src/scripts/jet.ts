@@ -8,7 +8,7 @@ import WalletAdapter from './walletAdapter';
 import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, SlopeWallet, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
 import { TxnResponse } from "../models/JetTypes";
 import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
-import { subscribeToMarket, subscribeToAssets } from './subscribe';
+import { subscribeToMarket, subscribeToAssets, unsubscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
@@ -255,18 +255,20 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   }
 };
 // Disconnect user wallet
-export const disconnectWallet = () => {
+export const disconnectWallet = (): void => {
   if (user.wallet?.disconnect) {
     user.wallet.disconnect();
   }
   if (user.wallet?.forgetAccounts) {
     user.wallet.forgetAccounts();
   }
+  unsubscribeToAssets(connection, user.walletSubscriptionIds);
   USER.update(user => {
     user.wallet = null;
     user.walletInit = false;
     user.assets = null;
     user.walletBalances = {};
+    user.walletSubscriptionIds = [];
     user.collateralBalances = {};
     user.loanBalances = {};
     user.position = {
@@ -655,7 +657,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   } catch (err) {
     console.error(`Deposit error: ${transactionErrorToString(err)}`);
     rollbar.error(`Deposit error: ${transactionErrorToString(err)}`);
-    return [err, [TxnResponse.Failed, null]];
+    return [TxnResponse.Failed, null];
   }
 };
 

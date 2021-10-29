@@ -101,7 +101,7 @@
       } else if ($USER.tradeAction === 'borrow') {
         max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxBorrowAmount;
       } else if ($USER.tradeAction === 'repay') {
-        max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxRepayAmount;
+        max = Math.min($USER.assets.tokens[$MARKET.currentReserve.abbrev].maxRepayAmount);
       }
     }
     maxInput = max;

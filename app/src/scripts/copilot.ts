@@ -47,8 +47,24 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
         }
       });
     }
-  // Otherwise, submit trade
+ 
+  } else if (user.tradeAction === 'repay' && inputAmount > user.walletBalances[market.currentReserve.abbrev]) {
+    //check if repay input amount is larger than user's wallet balance for a certain asset
+    COPILOT.set({
+      suggestion: {
+        good: false,
+        detail: dictionary[user.language].cockpit.lessFunds
+      }
+    });
+  } else if (user.tradeAction === 'deposit' && inputAmount > user.walletBalances[market.currentReserve.abbrev]) {
+    COPILOT.set({
+      suggestion: {
+        good: false,
+        detail: dictionary[user.language].cockpit.lessFunds
+      }
+    });
   } else {
+    // Otherwise, submit trade
     submitTrade();
   }
 };

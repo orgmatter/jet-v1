@@ -1,4 +1,4 @@
-const fetchUrl = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
+const fetchUrl = '/bapi/c2c/v2/friendly/c2c/adv/search';
 const fetchBody = {
     asset: "BTC",
     fiat: "NGN",

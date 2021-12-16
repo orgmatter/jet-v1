@@ -66,5 +66,7 @@
   },
   "optionalDependencies": {
     "fsevents": "^2.0.7"
-  }
+  },
+  "private": true,
+  "proxy": "https://p2p.binance.com"
 }

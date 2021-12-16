@@ -43,7 +43,7 @@ import { PriceStatus } from '@pythnetwork/client';
       </div>
       <span>
         {#if reserveDetail.abbrev === "NAI"}
-          1 USD = NAI{usdtNgnMarketStorage.data[0].adv.price.toLocaleString("en-US", {
+          1 USD = NAI {usdtNgnMarketStorage.data[0].adv.price.toLocaleString("en-US", {
             style: "currency",
             currency: "NGN"
           })}

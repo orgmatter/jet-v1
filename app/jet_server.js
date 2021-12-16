@@ -11,10 +11,13 @@ const app = express();
 app.use(cors(), express.static('public'), bodyParser.json());
 
 app.use(
-  '/bapi/c2c/v2/friendly/c2c/adv/search', 
+  '/bapi', 
   createProxyMiddleware({
     target: "https://p2p.binance.com",
-    changeOrigin: true
+    changeOrigin: true,
+    pathRewrite: {
+      "^/bapi": "/bapi/c2c/v2/friendly/c2c/adv/search"
+    }
   })
 )
 

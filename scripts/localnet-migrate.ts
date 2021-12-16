@@ -43,6 +43,11 @@ const main = async () => {
   const ethPythPrice = await utils.pyth.createPriceAccount();
   const ethPythProduct = await utils.pyth.createProductAccount();
   const ethMint = await utils.createToken(6);
+
+  // adding pyth data for BTC/NGN
+  // const naiPythPrice = await utils.pyth.createPriceAccount();
+  // const naiPythProduct = await utils.pyth.createProductAccount();
+  // const naiMint = await utils.createToken(6);
   const quoteTokenMint = usdcMint.publicKey;
 
   console.log("Setting prices...");
@@ -91,6 +96,19 @@ const main = async () => {
     },
   });
 
+  // Setting price for nai token
+  // await utils.pyth.updatePriceAccount(naiPythPrice, {
+  //   aggregatePriceInfo: {
+  //     price: 1n,
+  //   },
+  // });
+  // await utils.pyth.updateProductAccount(naiPythProduct, {
+  //   priceAccount: usdcPythPrice.publicKey,
+  //   attributes: {
+  //     quote_currency: "USD",
+  //   },
+  // });
+
   // Create dex markets
   const createMarketOpts = {
     baseLotSize: 100000,
@@ -103,6 +121,10 @@ const main = async () => {
   const btcUsdcMarket = await serumUtils.createMarket({ ...createMarketOpts, baseToken: btcMint, quoteToken: usdcMint });
   console.log("Initializing eth/usdc serum markets...")
   const ethUsdcMarket = await serumUtils.createMarket({ ...createMarketOpts, baseToken: ethMint, quoteToken: usdcMint });
+
+  // initializing nai serum markets
+  // console.log("Initializing nai/usdc serum markets...")
+  // const naiUsdcMarket = await serumUtils.createMarket({ ...createMarketOpts, baseToken: naiMint, quoteToken: usdcMint });
 
   await program.rpc.initMarket(marketOwner, "USD", quoteTokenMint, {
     accounts: toPublicKeys({
@@ -135,6 +157,9 @@ const main = async () => {
   let btcReserveAccounts = await jetUtils.createReserveAccount(btcMint, btcUsdcMarket.publicKey, btcPythPrice.publicKey, btcPythProduct.publicKey);
   let ethReserveAccounts = await jetUtils.createReserveAccount(ethMint, ethUsdcMarket.publicKey, ethPythPrice.publicKey, ethPythProduct.publicKey);
 
+  // reserve account for nai
+  // let naiReserveAccounts = await jetUtils.createReserveAccount(naiMint, naiUsdcMarket.publicKey, naiPythPrice.publicKey, naiPythProduct.publicKey);
+
   idl.metadata = {
     ...idl.metadata,
     serumProgramId: DEX_ID.toBase58(),
@@ -148,6 +173,7 @@ const main = async () => {
       reserveAccountsMetadata(wsolReserveAccounts, "Solana", "SOL", wsolMint.decimals, 1),
       reserveAccountsMetadata(btcReserveAccounts, "Bitcoin", "BTC", btcMint.decimals, 2),
       reserveAccountsMetadata(ethReserveAccounts, "Ether", "ETH", ethMint.decimals, 3),
+      // reserveAccountsMetadata(naiReserveAccounts, "NaiScience", "NAI", naiMint.decimals, 4),
     ]
   }
 

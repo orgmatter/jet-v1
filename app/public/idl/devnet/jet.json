@@ -1948,6 +1948,34 @@
         "abbrev": "ETH",
         "decimals": 6,
         "reserveIndex": 3
+      },
+      {
+        "accounts": {
+          "reserve": "4ffGvchm3A3MgHiPGWj2qH1Pn1jhYd88w7gR32chp4XD",
+          "vault": "HitMoSUprWq9PxekmXY5YdRYVNK7WnEQCnwmCgJ8ZJ9U",
+          "feeNoteVault": "CKpNxVWLGJVSn6Bpie58PoAxMtqfieFi6BAK1GPvbDDv",
+          "dexOpenOrders": "DBP3GTG1sjoaS6ZUfVNpvQ1cMaYjkyaMGHpZgKZyUUC8",
+          "dexSwapTokens": "6B4oVv6k5cAY1wDMCwrLcKzfFGT5w3u962whX9CkAxAG",
+          "tokenMint": "AZU7JDGEKNrKS53FrLKBukvWzd6d9pFYnPmahTuYodSn",
+          "dexMarket": "GFAwujNyddD9wqYjSAUU4qH86gJzk1LjPhSWKi6Sdn7E",
+          "pythPrice": "JDJDHQq84UQW1o3BAHSj9GqWkDNynqRnShVQWYU8G28R",
+          "pythProduct": "9U1SvuGrfWxp2vp2j6nbUFtcdsudowGHDEeid1EQiEe3",
+          "depositNoteMint": "5p2YD4nu2sxJnFM5AEqojp1u81fLi5t5cn1d993CBhep",
+          "loanNoteMint": "56XuA7KXhp45dscbCYNX95bsCiCdTNRhszCkTNEq1xwc",
+          "faucet": "2E3cVy6mxRW4fAE1f6eeBnk8gJHogSJehMhLHKutscG7"
+        },
+        "bump": {
+          "vault": 254,
+          "feeNoteVault": 255,
+          "dexOpenOrders": 255,
+          "dexSwapTokens": 250,
+          "depositNoteMint": 255,
+          "loanNoteMint": 254
+        },
+        "name": "NaiScience",
+        "abbrev": "NAI",
+        "decimals": 6,
+        "reserveIndex": 4
       }
     ]
   }

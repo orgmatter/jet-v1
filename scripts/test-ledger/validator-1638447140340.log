@@ -1,0 +1,12 @@
+[0m[38;5;8m[[0m2021-12-02T12:12:20.341814000Z [0m[32mINFO [0m solana_test_validator[0m[38;5;8m][0m solana-validator 1.8.5 (src:76c5c94a; feat:52865992)
+[0m[38;5;8m[[0m2021-12-02T12:12:20.341864000Z [0m[32mINFO [0m solana_test_validator[0m[38;5;8m][0m Starting validator with: ArgsOs {
+        inner: [
+            "solana-test-validator",
+            "-r",
+            "--bpf-program",
+            "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+            "deps/serum_dex.so",
+        ],
+    }
+[0m[38;5;8m[[0m2021-12-02T12:12:20.342720000Z [0m[33mWARN [0m solana_perf[0m[38;5;8m][0m CUDA is disabled
+[0m[38;5;8m[[0m2021-12-02T12:12:20.344783000Z [0m[32mINFO [0m solana_perf[0m[38;5;8m][0m AVX detected

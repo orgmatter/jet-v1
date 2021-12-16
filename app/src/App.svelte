@@ -14,8 +14,16 @@
   import TermsConditions from "./components/TermsConditions.svelte";
   import { subscribeToMarket } from "./scripts/subscribe";
   import { INIT_FAILED, MARKET } from "./store";
+  import { btcNgnMarketJob } from './scripts/misc/jobs/btc-ngn-market-job';
+  import { usdtNgnMarketJob } from './scripts/misc/jobs/usdt-ngn-market-job';
+// import Logo from "./components/Logo.svelte";
 
   let launchUI: boolean = false;
+
+  // start btc-ngn, usdt-ngn market job
+  btcNgnMarketJob(6000).start();
+  usdtNgnMarketJob(6000).start();
+
   onMount(async () => {
     // Init dark thtme
     checkDarkTheme();
@@ -35,7 +43,7 @@
     } catch (err) {
       console.error(`Unable to connect: ${err}`);
       rollbar.critical(`Unable to connect: ${err}`);
-      INIT_FAILED.set(true);
+      INIT_FAILED.set(false);
       return;
     }
   });

@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
@@ -11,6 +11,8 @@ import builtins from 'rollup-plugin-node-builtins';
 import typescript from '@rollup/plugin-typescript';
 import { sveltePreprocess } from 'svelte-preprocess/dist/autoProcess';
 import replace from '@rollup/plugin-replace';
+import babel from '@rollup/plugin-babel'
+import externalGlobals from 'rollup-plugin-external-globals';
 
 config();
 const development = process.env.DEVELOPMENT === 'true';
@@ -39,11 +41,15 @@ function serve() {
 export default {
   input: 'src/main.ts',
   output: {
-    sourcemap: true,
+    sourcemap: development,
     format: 'iife',
     name: 'app',
-    file: 'public/build/bundle.js'
+    file: 'public/build/bundle.js',
+    globals: {
+      // 'cron': 'CronJob'
+    }
   },
+  // external: ['cron'],
   plugins: [
     svelte({
       preprocess: sveltePreprocess({ sourceMap: development }),
@@ -52,13 +58,14 @@ export default {
         dev: development
       }
     }),
+    babel(),
     replace({
       preventAssignment: true,
 
       // The following variables will be available in
-      // the svelte app.
+      // the svelte app. JSON.stringify(process.env.IDL)
       jetDev: development,
-      jetIdl: JSON.stringify(process.env.IDL),
+      jetIdl: JSON.stringify("devnet"),
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance
@@ -69,9 +76,10 @@ export default {
     // some cases you'll need additional configuration -
     // consult the documentation for details:
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
-    resolve({
+    nodeResolve({
       browser: true,
-      dedupe: ['svelte']
+      dedupe: ['svelte'],
+      preferBuiltins: true,
     }),
     commonjs(),
 

@@ -365,7 +365,8 @@ export interface AssetStore {
     SOL: Asset,
     USDC: Asset,
     BTC: Asset,
-    ETH: Asset
+    ETH: Asset,
+    NAI: Asset
   }
 };
 export interface Asset {

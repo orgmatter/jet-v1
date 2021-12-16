@@ -9,9 +9,11 @@
   import PercentageChart from './PercentageChart.svelte';
   import Toggle from './Toggle.svelte';
   import Info from './Info.svelte';
+import { PriceStatus } from '@pythnetwork/client';
 
   export let reserveDetail: Reserve;
   export let closeModal: Function;
+  export let usdtNgnMarketStorage: any;
 
   onMount(() => {
     document.addEventListener('keypress', (e) => {
@@ -40,7 +42,14 @@
         </h1>
       </div>
       <span>
-        1 {reserveDetail.abbrev} ≈ {currencyFormatter(reserveDetail.price, true, 2)}
+        {#if reserveDetail.abbrev === "NAI"}
+          1 USD = NAI{usdtNgnMarketStorage.data[0].adv.price.toLocaleString("en-US", {
+            style: "currency",
+            currency: "NGN"
+          })}
+        {:else}
+          1 {reserveDetail.abbrev} ≈ {currencyFormatter(reserveDetail.price, true, 2)}
+        {/if}
       </span>
     </div>
     <div class="native-toggle">

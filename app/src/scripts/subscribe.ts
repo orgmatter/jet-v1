@@ -146,7 +146,8 @@ export const subscribeToMarket = async () => {
     promise = getAccountInfoAndSubscribe(connection, reserveMeta.accounts.pythPrice, account => {
       if (account != null) {
         MARKET.update(market => {
-          let reserve = market.reserves[reserveMeta.abbrev];
+          let reserve: any;
+          reserve = market.reserves[reserveMeta.abbrev];
           reserve.price = parsePriceData(account.data).price;
 
           deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
@@ -293,6 +294,7 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
   // Update market total value locked and reserve array from new values
   let tvl: number = 0;
   let reservesArray: Reserve[] = [];
+  // console.log('market reserves: ', market.reserves)
   for (let r in market.reserves) {
     tvl += market.reserves[r].marketSize.muln(market.reserves[r].price)?.uiAmountFloat;
     reservesArray.push(market.reserves[r]);

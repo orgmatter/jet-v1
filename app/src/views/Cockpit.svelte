@@ -1,9 +1,9 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$USER.language].cockpit.title}</title>
+  <title>{dictionary[$USER.language].cockpit.title} | P2P Lending Platform</title>
 </svelte:head>
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Datatable, rows } from 'svelte-simple-datatables';
+  import { Datatable } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token'; 
   import type { Reserve } from '../models/JetTypes';
   import { INIT_FAILED, MARKET, USER } from '../store';
@@ -18,6 +18,27 @@
   import ConnectWalletButton from '../components/ConnectWalletButton.svelte';
   import Info from '../components/Info.svelte';
   import TradePanel from '../components/TradePanel.svelte';
+  import { btcNgnMarketStorageJob, getBtcLocalStorage } from '../scripts/misc/jobs/btc-ngn-market-storage-job';
+  import { usdtNgnMarketStorageJob, getUsdtLocalStorage } from '../scripts/misc/jobs/usdt-ngn-market-storage-job';
+
+// getting local storage data for btc-ngn and usdt-ngn
+  let btcNgnMarketStorage: any = getBtcLocalStorage();
+  let usdtNgnMarketStorage: any = getUsdtLocalStorage();
+
+  // start btc-ngn, usdt-ngn market storage job
+  btcNgnMarketStorageJob(6000).start();
+  setInterval(() => {
+    btcNgnMarketStorage = getBtcLocalStorage();
+  }, 6000)
+
+  $: console.log('btc-ngn-price: ', btcNgnMarketStorage.data[0].adv.price);
+
+  usdtNgnMarketStorageJob(6000).start();
+  setInterval(() => {
+    usdtNgnMarketStorage = getUsdtLocalStorage();
+  }, 6000)
+
+  $: console.log('usdt-ngn-price: ', usdtNgnMarketStorage.data[0].adv.price);
 
   // Reserve detail controller
   let reserveDetail: Reserve | null = null;
@@ -34,6 +55,11 @@
         search: dictionary[$USER.language].cockpit.search,    
     }
   };
+
+  // new BtcNgnMarketJob();
+
+  // new declaration method from svelte-simple-datatable
+  let rows: any;
 
   // If in development, can request airdrop for testing
   const doAirdrop = async (reserve: Reserve): Promise<void> => {
@@ -164,7 +190,7 @@
       </div>
     </div>
     <TradePanel />
-    <Datatable settings={tableSettings} data={$MARKET.reservesArray}>
+    <Datatable settings={tableSettings} data={$MARKET.reservesArray} bind:dataRows={rows}>
       <thead>
         <th data-key="name">
           {dictionary[$USER.language].cockpit.asset} 
@@ -206,7 +232,8 @@
       <div class="datatable-divider">
       </div>
       <tbody>
-        {#each $rows as row, i}
+        {#if rows}
+          {#each $rows as row, i}
           <tr class="datatable-spacer">
             <td><!-- Extra Row for spacing --></td>
           </tr>
@@ -216,18 +243,25 @@
               return market;
             })}>
             <td class="dt-asset">
-              <img src="img/cryptos/{$rows[i].abbrev}.png" 
+              <img src="img/cryptos/{$rows[i].abbrev}.png"
                 alt="{$rows[i].abbrev} Icon"
               />
               <span>
                 {$rows[i].name}
               </span>
               <span>
-                ≈ 
-                {#if $MARKET.marketInit}
-                  {currencyFormatter($rows[i].price, true, 2)}
+                {#if $rows[i].abbrev === 'NAI'}
+                  ≈ NAI{usdtNgnMarketStorage.data[0].adv.price.toLocaleString('en-US', {
+                    style: "currency",
+                    currency: "NGN"
+                  })}
                 {:else}
-                  --
+                  ≈ 
+                  {#if $MARKET.marketInit}
+                    {currencyFormatter($rows[i].price, true, 2)}
+                  {:else}
+                    --
+                  {/if}
                 {/if}
               </span>
             </td>
@@ -350,11 +384,12 @@
             <td><!-- Extra Row for spacing --></td>
           </tr>
         {/each}
+        {/if}
       </tbody>
     </Datatable>
   </div>
   {#if reserveDetail}
-    <ReserveDetail {reserveDetail}
+    <ReserveDetail {reserveDetail} {usdtNgnMarketStorage}
       closeModal={() => reserveDetail = null} 
     />
   {/if}

@@ -11,8 +11,7 @@ import builtins from 'rollup-plugin-node-builtins';
 import typescript from '@rollup/plugin-typescript';
 import { sveltePreprocess } from 'svelte-preprocess/dist/autoProcess';
 import replace from '@rollup/plugin-replace';
-import babel from '@rollup/plugin-babel'
-import externalGlobals from 'rollup-plugin-external-globals';
+import babel from '@rollup/plugin-babel';
 import dev from 'rollup-plugin-dev';
 
 config();
@@ -102,7 +101,8 @@ export default {
     !development && terser(),
     !development && dev({
       dirs: ['public'],
-      spa: ['public/index.html'],
+      spa: 'public/index.html',
+      host: 'localhost',
       port: 3000,
       proxy: {
         "/bapi/c2c/v2/friendly/c2c/adv/search": "https://p2p.binance.com"

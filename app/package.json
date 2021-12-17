@@ -64,12 +64,6 @@
     "toml": "^3.0.0",
     "yargs": "^16.2.0"
   },
-  "proxy": {
-    "/bapi/c2c/v2/friendly/c2c/adv/search": {
-      "target": "https://p2p.binance.com",
-      "changeOrigin": true
-    }
-  },
   "optionalDependencies": {
     "fsevents": "^2.0.7"
   }

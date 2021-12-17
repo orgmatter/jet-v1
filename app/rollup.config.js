@@ -13,6 +13,7 @@ import { sveltePreprocess } from 'svelte-preprocess/dist/autoProcess';
 import replace from '@rollup/plugin-replace';
 import babel from '@rollup/plugin-babel'
 import externalGlobals from 'rollup-plugin-external-globals';
+import dev from 'rollup-plugin-dev';
 
 config();
 const development = process.env.DEVELOPMENT === 'true';
@@ -99,6 +100,14 @@ export default {
     // If we're building for production (npm run build
     // instead of npm run dev), minify
     !development && terser(),
+    !development && dev({
+      dirs: ['public'],
+      spa: ['public/index.html'],
+      port: 3000,
+      proxy: {
+        "/bapi/c2c/v2/friendly/c2c/adv/search": "https://p2p.binance.com"
+      }
+    }),
     json({
       compact: true
     }),

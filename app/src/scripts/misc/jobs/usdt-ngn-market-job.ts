@@ -27,8 +27,6 @@ const schedule = (interval: number, cb: any) => ({
     }
 })
 
-// callback function
-
 const httpCall = async () => {
 
     return await fetch(fetchUrl, {

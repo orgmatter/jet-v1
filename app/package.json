@@ -6,7 +6,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "node jet_server.js",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "serve": "webpack serve"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^16.0.0",

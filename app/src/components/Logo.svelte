@@ -4,12 +4,12 @@
 </script>
 
 <div class="logo flex-centered">
-  <img src="img/jet/jet_logomark_gradient.png" alt="Jet Logomark"
+  <img src="img/jet/nai-logomark-gradient.png" alt="Nai Logomark"
     style="width: {width}px; {logoMark ? 'height: auto; opacity: 1' : 'height: 0px; opacity: 0; position: absolute;'}" 
   />
-  <img src="img/jet/jet_logo_gradient.png" alt="Jext Logo"
+  <img src="img/jet/nai-logomark-gradient.png" alt="Jext Logo"
     style="width: {width}px; {!logoMark ? 'height: auto; opacity: 1' : 'height: 0px; opacity: 0; position: absolute;'}" 
-  />
+  /> <span>Nairance</span>
 </div>
 
 <style>

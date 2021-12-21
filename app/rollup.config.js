@@ -104,9 +104,10 @@ export default {
       spa: 'public/index.html',
       host: 'localhost',
       port: 3000,
-      proxy: {
-        "/bapi/c2c/v2/friendly/c2c/adv/search": "https://p2p.binance.com"
-      }
+      proxy: [{
+        from: "/bapi/c2c/v2/friendly/c2c/adv/search",
+        to: "https://p2p.binance.com"
+      }]
     }),
     json({
       compact: true

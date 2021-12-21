@@ -9,7 +9,6 @@
   import PercentageChart from './PercentageChart.svelte';
   import Toggle from './Toggle.svelte';
   import Info from './Info.svelte';
-import { PriceStatus } from '@pythnetwork/client';
 
   export let reserveDetail: Reserve;
   export let closeModal: Function;

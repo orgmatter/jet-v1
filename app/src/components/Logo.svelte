@@ -9,7 +9,7 @@
   />
   <img src="img/jet/nai-logomark-gradient.png" alt="Jext Logo"
     style="width: {width}px; {!logoMark ? 'height: auto; opacity: 1' : 'height: 0px; opacity: 0; position: absolute;'}" 
-  /> <span>Nairance</span>
+  />
 </div>
 
 <style>
